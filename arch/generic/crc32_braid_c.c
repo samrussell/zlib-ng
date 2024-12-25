@@ -215,7 +215,7 @@ Z_INTERNAL uint32_t crc32_braid(uint32_t c, const uint8_t *buf, size_t len) {
 #define bitbuffersizeqwords (bitbuffersizebytes / sizeof(uint64_t))
 
 uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_t len) {
-    uint64_t* bitbuffer = calloc(bitbuffersizeqwords, sizeof(uint64_t));
+    uint64_t bitbuffer[bitbuffersizeqwords];
     const uint8_t* bitbufferbytes = (const uint8_t*) bitbuffer;
 
     int i = 0;
@@ -643,7 +643,6 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         crc = crc_table[(crc ^ final[j] ^ bitbufferbytes[(j+i) % bitbuffersizebytes]) & 0xff] ^ (crc >> 8);
     }
 
-    free(bitbuffer);
     return crc;
 }
 

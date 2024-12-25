@@ -108,9 +108,6 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
 
         while (len >= 512 + 64 + 16*8) {
             __m128i shift544_shift480 = _mm_set_epi64x(0x1D9513D7, 0x8F352D95);
-            // __m128i shift672_shift608 = _mm_set_epi64x(0xAE0B5394, 0x1C279815);
-            // __m128i shift800_shift736 = _mm_set_epi64x(0x57C54819, 0xDF068DC2);
-            // __m128i shift1568_shift1504 = _mm_set_epi64x(0x910EEEC1, 0x33FFF533);
             __m128i shift1568_shift1504 = _mm_set_epi64x(0xF5E48C85, 0x596C8D81);
             __m128i chorba8 = _mm_loadu_si128((__m128i *)src);
             __m128i chorba7 = _mm_loadu_si128((__m128i *)src + 1);
