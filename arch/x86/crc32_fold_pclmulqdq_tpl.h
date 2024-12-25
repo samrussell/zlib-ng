@@ -115,187 +115,295 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             __m128i chorba5 = _mm_loadu_si128((__m128i *)src + 3);
             __m128i chorba4 = _mm_loadu_si128((__m128i *)src + 4);
             __m128i chorba3 = _mm_loadu_si128((__m128i *)src + 5);
-            __m128i chorba2 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + 6), chorba8);
-            __m128i chorba1 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + 7), chorba7);
+            __m128i chorba2 = _mm_loadu_si128((__m128i *)src + 6);
+            __m128i chorba1 = _mm_loadu_si128((__m128i *)src + 7);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, chorba8);
+            _mm_storeu_si128((__m128i *)dst + 1, chorba7);
+            _mm_storeu_si128((__m128i *)dst + 2, chorba6);
+            _mm_storeu_si128((__m128i *)dst + 3, chorba5);
+            _mm_storeu_si128((__m128i *)dst + 4, chorba4);
+            _mm_storeu_si128((__m128i *)dst + 5, chorba3);
+            _mm_storeu_si128((__m128i *)dst + 6, chorba2);
+            _mm_storeu_si128((__m128i *)dst + 7, chorba1);
+            dst += 16*8;
+#else
+            XOR_INITIAL128(chorba8);
+#endif
+            chorba2 = _mm_xor_si128(chorba2, chorba8);
+            chorba1 = _mm_xor_si128(chorba1, chorba7);
             src += 16*8;
             len -= 16*8;
-            xmm_t0 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + (4-4)), chorba6);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (5-4)), chorba5), chorba8);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (6-4)), chorba4), chorba8), chorba7);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (7-4)), chorba3), chorba7), chorba6);
 
-            // now we fold xmm_crc0 onto xmm_crc1
-            // fold 8x because we stole a value
+            xmm_t0 = _mm_loadu_si128((__m128i *)src);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 1);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 2);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 3);
+
+            // fold 12x because we took an extra 8 values to begin
             __m128i fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift1568_shift1504, 0x11);
             __m128i fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift1568_shift1504, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             __m128i fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift1568_shift1504, 0x11);
             __m128i fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift1568_shift1504, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             __m128i fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift1568_shift1504, 0x11);
             __m128i fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift1568_shift1504, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             __m128i fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift1568_shift1504, 0x11);
             __m128i fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift1568_shift1504, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (8-4)), chorba2), chorba6), chorba5);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (9-4)), chorba1), chorba4), chorba5);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (10-4)), chorba3), chorba4);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (11-4)), chorba2), chorba3);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
+            xmm_t0 = _mm_xor_si128(xmm_t0, chorba6);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(xmm_t1, chorba5), chorba8);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t2, chorba4), chorba8), chorba7);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t3, chorba3), chorba7), chorba6);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 4);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 5);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 6);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 7);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (12-4)), chorba1), chorba2), chorba8);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (13-4)), chorba1), chorba7);
-            xmm_t2 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + (14-4)), chorba6);
-            xmm_t3 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + (15-4)), chorba5);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba2), chorba6), chorba5);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba1), chorba4), chorba5);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(xmm_t2, chorba3), chorba4);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(xmm_t3, chorba2), chorba3);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
+
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 8);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 9);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 10);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 11);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (16-4)), chorba4), chorba8);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (17-4)), chorba3), chorba8), chorba7);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (18-4)), chorba2), chorba8), chorba7), chorba6);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (19-4)), chorba1), chorba7), chorba6), chorba5);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba1), chorba2), chorba8);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(xmm_t1, chorba1), chorba7);
+            xmm_t2 = _mm_xor_si128(xmm_t2, chorba6);
+            xmm_t3 = _mm_xor_si128(xmm_t3, chorba5);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
+
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 12);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 13);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 14);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 15);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (20-4)), chorba4), chorba8), chorba6), chorba5);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (21-4)), chorba3), chorba4), chorba8), chorba7), chorba5);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (22-4)), chorba2), chorba3), chorba4), chorba7), chorba6);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (23-4)), chorba1), chorba2), chorba3), chorba8), chorba6), chorba5);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(xmm_t0, chorba4), chorba8);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba3), chorba8), chorba7);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t2, chorba2), chorba8), chorba7), chorba6);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t3, chorba1), chorba7), chorba6), chorba5);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
+
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 16);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 17);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 18);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 19);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (24-4)), chorba1), chorba2), chorba4), chorba8), chorba7), chorba5);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (25-4)), chorba1), chorba3), chorba4), chorba7), chorba6);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (26-4)), chorba2), chorba3), chorba8), chorba6), chorba5);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (27-4)), chorba1), chorba2), chorba4), chorba8), chorba7), chorba5);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba4), chorba8), chorba6), chorba5);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba3), chorba4), chorba8), chorba7), chorba5);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t2, chorba2), chorba3), chorba4), chorba7), chorba6);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t3, chorba1), chorba2), chorba3), chorba8), chorba6), chorba5);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
+
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 20);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 21);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 22);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 23);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (28-4)), chorba1), chorba3), chorba4), chorba8), chorba7), chorba6);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (29-4)), chorba2), chorba3), chorba7), chorba6), chorba5);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (30-4)), chorba1), chorba2), chorba4), chorba6), chorba5);
-            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (31-4)), chorba1), chorba3), chorba4), chorba5);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba1), chorba2), chorba4), chorba8), chorba7), chorba5);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba1), chorba3), chorba4), chorba7), chorba6);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t2, chorba2), chorba3), chorba8), chorba6), chorba5);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t3, chorba1), chorba2), chorba4), chorba8), chorba7), chorba5);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
+
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 24);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 25);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 26);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 27);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (32-4)), chorba2), chorba3), chorba4);
-            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (33-4)), chorba1), chorba2), chorba3);
-            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_loadu_si128((__m128i *)src + (34-4)), chorba1), chorba2);
-            xmm_t3 = _mm_xor_si128(_mm_loadu_si128((__m128i *)src + (35-4)), chorba1);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba1), chorba3), chorba4), chorba8), chorba7), chorba6);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba2), chorba3), chorba7), chorba6), chorba5);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t2, chorba1), chorba2), chorba4), chorba6), chorba5);
+            xmm_t3 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t3, chorba1), chorba3), chorba4), chorba5);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
 
-            // now we fold xmm_crc0 onto xmm_crc1
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + 28);
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + 29);
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + 30);
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + 31);
+
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
             fold_low1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x00);
-            xmm_crc0 = _mm_xor_si128(xmm_t0, fold_high1);
-            xmm_crc0 = _mm_xor_si128(xmm_crc0, fold_low1);
+            xmm_crc0 = _mm_xor_si128(fold_high1, fold_low1);
             fold_high2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x11);
             fold_low2 = _mm_clmulepi64_si128(xmm_crc1, shift544_shift480, 0x00);
-            xmm_crc1 = _mm_xor_si128(xmm_t1, fold_high2);
-            xmm_crc1 = _mm_xor_si128(xmm_crc1, fold_low2);
+            xmm_crc1 = _mm_xor_si128(fold_high2, fold_low2);
             fold_high3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x11);
             fold_low3 = _mm_clmulepi64_si128(xmm_crc2, shift544_shift480, 0x00);
-            xmm_crc2 = _mm_xor_si128(xmm_t2, fold_high3);
-            xmm_crc2 = _mm_xor_si128(xmm_crc2, fold_low3);
+            xmm_crc2 = _mm_xor_si128(fold_high3, fold_low3);
             fold_high4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x11);
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
-            xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
-            xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
+            xmm_crc3 = _mm_xor_si128(fold_high4, fold_low4);
+#ifdef COPY
+            _mm_storeu_si128((__m128i *)dst, xmm_t0);
+            _mm_storeu_si128((__m128i *)dst + 1, xmm_t1);
+            _mm_storeu_si128((__m128i *)dst + 2, xmm_t2);
+            _mm_storeu_si128((__m128i *)dst + 3, xmm_t3);
+            dst += 64;
+#endif
+            xmm_t0 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t0, chorba2), chorba3), chorba4);
+            xmm_t1 = _mm_xor_si128(_mm_xor_si128(_mm_xor_si128(xmm_t1, chorba1), chorba2), chorba3);
+            xmm_t2 = _mm_xor_si128(_mm_xor_si128(xmm_t2, chorba1), chorba2);
+            xmm_t3 = _mm_xor_si128(xmm_t3, chorba1);
+            xmm_crc0 = _mm_xor_si128(xmm_t0, xmm_crc0);
+            xmm_crc1 = _mm_xor_si128(xmm_t1, xmm_crc1);
+            xmm_crc2 = _mm_xor_si128(xmm_t2, xmm_crc2);
+            xmm_crc3 = _mm_xor_si128(xmm_t3, xmm_crc3);
 
             len -= 512;
             src += 512;
