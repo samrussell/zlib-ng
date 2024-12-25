@@ -211,6 +211,7 @@ Z_INTERNAL uint32_t crc32_braid(uint32_t c, const uint8_t *buf, size_t len) {
     return c;
 }
 
+/* Implement Chorba algorithm from https://arxiv.org/abs/2412.16398 */
 #define bitbuffersizebytes (128 * 1024)
 #define bitbuffersizeqwords (bitbuffersizebytes / sizeof(uint64_t))
 
@@ -646,6 +647,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
     return crc;
 }
 
+/* Implement Chorba algorithm from https://arxiv.org/abs/2412.16398 */
 uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t len) {
     const uint8_t* input = buf;
     uint8_t final[72] = {0};

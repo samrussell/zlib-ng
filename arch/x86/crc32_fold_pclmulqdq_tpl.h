@@ -105,7 +105,7 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
     }
 #endif
 
-
+        /* Implement Chorba algorithm from https://arxiv.org/abs/2412.16398 */
         while (len >= 512 + 64 + 16*8) {
             __m128i shift544_shift480 = _mm_set_epi64x(0x1D9513D7, 0x8F352D95);
             __m128i shift1568_shift1504 = _mm_set_epi64x(0xF5E48C85, 0x596C8D81);
