@@ -107,25 +107,25 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
 
 
         while (len >= 512 + 64 + 16*8) {
-                __m128i shift544_shift480 = _mm_set_epi64x(0x1D9513D7, 0x8F352D95);
-                // __m128i shift672_shift608 = _mm_set_epi64x(0xAE0B5394, 0x1C279815);
-                // __m128i shift800_shift736 = _mm_set_epi64x(0x57C54819, 0xDF068DC2);
-                // __m128i shift1568_shift1504 = _mm_set_epi64x(0x910EEEC1, 0x33FFF533);
-                __m128i shift1568_shift1504 = _mm_set_epi64x(0xF5E48C85, 0x596C8D81);
-            __m128i bonus8 = _mm_loadu_si128(src + (16 * 4));
-            __m128i bonus7 = _mm_loadu_si128(src + (16 * 5));
-            __m128i bonus6 = _mm_loadu_si128(src + (16 * 6));
-            __m128i bonus5 = _mm_loadu_si128(src + (16 * 7));
-            __m128i bonus4 = _mm_loadu_si128(src + (16 * 8));
-            __m128i bonus3 = _mm_loadu_si128(src + (16 * 9));
-            __m128i bonus2 = _mm_loadu_si128(src + (16 * 10)) ^ bonus8;
-            __m128i bonus1 = _mm_loadu_si128(src + (16 * 11)) ^ bonus7;
+            __m128i shift544_shift480 = _mm_set_epi64x(0x1D9513D7, 0x8F352D95);
+            // __m128i shift672_shift608 = _mm_set_epi64x(0xAE0B5394, 0x1C279815);
+            // __m128i shift800_shift736 = _mm_set_epi64x(0x57C54819, 0xDF068DC2);
+            // __m128i shift1568_shift1504 = _mm_set_epi64x(0x910EEEC1, 0x33FFF533);
+            __m128i shift1568_shift1504 = _mm_set_epi64x(0xF5E48C85, 0x596C8D81);
+            __m128i bonus8 = _mm_loadu_si128((__m128i *)src);
+            __m128i bonus7 = _mm_loadu_si128((__m128i *)src + 1);
+            __m128i bonus6 = _mm_loadu_si128((__m128i *)src + 2);
+            __m128i bonus5 = _mm_loadu_si128((__m128i *)src + 3);
+            __m128i bonus4 = _mm_loadu_si128((__m128i *)src + 4);
+            __m128i bonus3 = _mm_loadu_si128((__m128i *)src + 5);
+            __m128i bonus2 = _mm_loadu_si128((__m128i *)src + 6) ^ bonus8;
+            __m128i bonus1 = _mm_loadu_si128((__m128i *)src + 7) ^ bonus7;
             src += 16*8;
             len -= 16*8;
-            xmm_t0 = _mm_loadu_si128(src + (16 * 4)) ^ bonus6;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 5)) ^ bonus5 ^ bonus8;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 6)) ^ bonus4 ^ bonus8 ^ bonus7;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 7)) ^ bonus3 ^ bonus7 ^ bonus6;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (4-4)) ^ bonus6;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (5-4)) ^ bonus5 ^ bonus8;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (6-4)) ^ bonus4 ^ bonus8 ^ bonus7;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (7-4)) ^ bonus3 ^ bonus7 ^ bonus6;
 
             // now we fold xmm_crc0 onto xmm_crc1
             // fold 8x because we stole a value
@@ -145,10 +145,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             __m128i fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift1568_shift1504, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 8)) ^ bonus2 ^ bonus6 ^ bonus5;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 9)) ^ bonus1 ^ bonus4 ^ bonus5;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 10)) ^ bonus3 ^ bonus4;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 11)) ^ bonus2 ^ bonus3;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (8-4)) ^ bonus2 ^ bonus6 ^ bonus5;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (9-4)) ^ bonus1 ^ bonus4 ^ bonus5;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (10-4)) ^ bonus3 ^ bonus4;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (11-4)) ^ bonus2 ^ bonus3;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -167,10 +167,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 12)) ^ bonus1 ^ bonus2 ^ bonus8;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 13)) ^ bonus1 ^ bonus7;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 14)) ^ bonus6;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 15)) ^ bonus5;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (12-4)) ^ bonus1 ^ bonus2 ^ bonus8;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (13-4)) ^ bonus1 ^ bonus7;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (14-4)) ^ bonus6;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (15-4)) ^ bonus5;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -189,10 +189,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 16)) ^ bonus4 ^ bonus8;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 17)) ^ bonus3 ^ bonus8 ^ bonus7;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 18)) ^ bonus2 ^ bonus8 ^ bonus7 ^ bonus6;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 19)) ^ bonus1 ^ bonus7 ^ bonus6 ^ bonus5;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (16-4)) ^ bonus4 ^ bonus8;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (17-4)) ^ bonus3 ^ bonus8 ^ bonus7;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (18-4)) ^ bonus2 ^ bonus8 ^ bonus7 ^ bonus6;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (19-4)) ^ bonus1 ^ bonus7 ^ bonus6 ^ bonus5;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -211,10 +211,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 20)) ^ bonus4 ^ bonus8 ^ bonus6 ^ bonus5;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 21)) ^ bonus3 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 22)) ^ bonus2 ^ bonus3 ^ bonus4 ^ bonus7 ^ bonus6;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 23)) ^ bonus1 ^ bonus2 ^ bonus3 ^ bonus8 ^ bonus6 ^ bonus5;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (20-4)) ^ bonus4 ^ bonus8 ^ bonus6 ^ bonus5;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (21-4)) ^ bonus3 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (22-4)) ^ bonus2 ^ bonus3 ^ bonus4 ^ bonus7 ^ bonus6;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (23-4)) ^ bonus1 ^ bonus2 ^ bonus3 ^ bonus8 ^ bonus6 ^ bonus5;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -233,10 +233,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 24)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 25)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus7 ^ bonus6;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 26)) ^ bonus2 ^ bonus3 ^ bonus8 ^ bonus6 ^ bonus5;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 27)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (24-4)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (25-4)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus7 ^ bonus6;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (26-4)) ^ bonus2 ^ bonus3 ^ bonus8 ^ bonus6 ^ bonus5;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (27-4)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus5;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -255,10 +255,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 28)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus6;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 29)) ^ bonus2 ^ bonus3 ^ bonus7 ^ bonus6 ^ bonus5;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 30)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus6 ^ bonus5;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 31)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus5;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (28-4)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus8 ^ bonus7 ^ bonus6;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (29-4)) ^ bonus2 ^ bonus3 ^ bonus7 ^ bonus6 ^ bonus5;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (30-4)) ^ bonus1 ^ bonus2 ^ bonus4 ^ bonus6 ^ bonus5;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (31-4)) ^ bonus1 ^ bonus3 ^ bonus4 ^ bonus5;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
@@ -277,10 +277,10 @@ Z_INTERNAL void CRC32_FOLD(crc32_fold *crc, const uint8_t *src, size_t len, uint
             fold_low4 = _mm_clmulepi64_si128(xmm_crc3, shift544_shift480, 0x00);
             xmm_crc3 = _mm_xor_si128(xmm_t3, fold_high4);
             xmm_crc3 = _mm_xor_si128(xmm_crc3, fold_low4);
-            xmm_t0 = _mm_loadu_si128(src + (16 * 32)) ^ bonus2 ^ bonus3 ^ bonus4;
-            xmm_t1 = _mm_loadu_si128(src + (16 * 33)) ^ bonus1 ^ bonus2 ^ bonus3;
-            xmm_t2 = _mm_loadu_si128(src + (16 * 34)) ^ bonus1 ^ bonus2;
-            xmm_t3 = _mm_loadu_si128(src + (16 * 35)) ^ bonus1;
+            xmm_t0 = _mm_loadu_si128((__m128i *)src + (32-4)) ^ bonus2 ^ bonus3 ^ bonus4;
+            xmm_t1 = _mm_loadu_si128((__m128i *)src + (33-4)) ^ bonus1 ^ bonus2 ^ bonus3;
+            xmm_t2 = _mm_loadu_si128((__m128i *)src + (34-4)) ^ bonus1 ^ bonus2;
+            xmm_t3 = _mm_loadu_si128((__m128i *)src + (35-4)) ^ bonus1;
 
             // now we fold xmm_crc0 onto xmm_crc1
             fold_high1 = _mm_clmulepi64_si128(xmm_crc0, shift544_shift480, 0x11);
