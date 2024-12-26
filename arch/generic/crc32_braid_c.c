@@ -216,7 +216,7 @@ Z_INTERNAL uint32_t crc32_braid_base(uint32_t c, const uint8_t *buf, size_t len)
 #define bitbuffersizezwords (bitbuffersizebytes / sizeof(z_word_t))
 #define bitbuffersizeqwords (bitbuffersizebytes / sizeof(uint64_t))
 
-uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_t len) {
+uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size_t len) {
     z_word_t bitbuffer[bitbuffersizezwords];
     const uint8_t* bitbufferbytes = (const uint8_t*) bitbuffer;
 
@@ -255,38 +255,38 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         int outoffset1 = ((i / sizeof(z_word_t)) + 14848) % bitbuffersizezwords;
         int outoffset2 = ((i / sizeof(z_word_t)) + 14880) % bitbuffersizezwords;
 
-        in1 = *((z_word_t*) (input + i + (0 * sizeof(z_word_t)))) ^ next1;
-        in2 = *((z_word_t*) (input + i + (1 * sizeof(z_word_t)))) ^ next2;
-        in3 = *((z_word_t*) (input + i + (2 * sizeof(z_word_t)))) ^ next3;
-        in4 = *((z_word_t*) (input + i + (3 * sizeof(z_word_t)))) ^ next4;
-        in5 = *((z_word_t*) (input + i + (4 * sizeof(z_word_t)))) ^ next5;
-        in6 = *((z_word_t*) (input + i + (5 * sizeof(z_word_t)))) ^ next6;
-        in7 = *((z_word_t*) (input + i + (6 * sizeof(z_word_t)))) ^ next7;
-        in8 = *((z_word_t*) (input + i + (7 * sizeof(z_word_t)))) ^ next8 ^ in1;
-        in9 = *((z_word_t*) (input + i + (8 * sizeof(z_word_t)))) ^ next9 ^ in2;
-        in10 = *((z_word_t*) (input + i + (9 * sizeof(z_word_t)))) ^ next10 ^ in3;
-        in11 = *((z_word_t*) (input + i + (10 * sizeof(z_word_t)))) ^ next11 ^ in4;
-        in12 = *((z_word_t*) (input + i + (11 * sizeof(z_word_t)))) ^ next12 ^ in1 ^ in5;
-        in13 = *((z_word_t*) (input + i + (12 * sizeof(z_word_t)))) ^ next13 ^ in2 ^ in6;
-        in14 = *((z_word_t*) (input + i + (13 * sizeof(z_word_t)))) ^ next14 ^ in3 ^ in7;
-        in15 = *((z_word_t*) (input + i + (14 * sizeof(z_word_t)))) ^ next15 ^ in4 ^ in8;
-        in16 = *((z_word_t*) (input + i + (15 * sizeof(z_word_t)))) ^ next16 ^ in5 ^ in9;
-        in17 = *((z_word_t*) (input + i + (16 * sizeof(z_word_t)))) ^ next17 ^ in6 ^ in10;
-        in18 = *((z_word_t*) (input + i + (17 * sizeof(z_word_t)))) ^ next18 ^ in7 ^ in11;
-        in19 = *((z_word_t*) (input + i + (18 * sizeof(z_word_t)))) ^ next19 ^ in8 ^ in12;
-        in20 = *((z_word_t*) (input + i + (19 * sizeof(z_word_t)))) ^ next20 ^ in9 ^ in13;
-        in21 = *((z_word_t*) (input + i + (20 * sizeof(z_word_t)))) ^ next21 ^ in10 ^ in14;
-        in22 = *((z_word_t*) (input + i + (21 * sizeof(z_word_t)))) ^ next22 ^ in11 ^ in15;
-        in23 = *((z_word_t*) (input + i + (22 * sizeof(z_word_t)))) ^ in1 ^ in12 ^ in16;
-        in24 = *((z_word_t*) (input + i + (23 * sizeof(z_word_t)))) ^ in2 ^ in13 ^ in17;
-        in25 = *((z_word_t*) (input + i + (24 * sizeof(z_word_t)))) ^ in3 ^ in14 ^ in18;
-        in26 = *((z_word_t*) (input + i + (25 * sizeof(z_word_t)))) ^ in4 ^ in15 ^ in19;
-        in27 = *((z_word_t*) (input + i + (26 * sizeof(z_word_t)))) ^ in5 ^ in16 ^ in20;
-        in28 = *((z_word_t*) (input + i + (27 * sizeof(z_word_t)))) ^ in6 ^ in17 ^ in21;
-        in29 = *((z_word_t*) (input + i + (28 * sizeof(z_word_t)))) ^ in7 ^ in18 ^ in22;
-        in30 = *((z_word_t*) (input + i + (29 * sizeof(z_word_t)))) ^ in8 ^ in19 ^ in23;
-        in31 = *((z_word_t*) (input + i + (30 * sizeof(z_word_t)))) ^ in9 ^ in20 ^ in24;
-        in32 = *((z_word_t*) (input + i + (31 * sizeof(z_word_t)))) ^ in10 ^ in21 ^ in25;
+        in1 = input[i / sizeof(z_word_t) + 0] ^ next1;
+        in2 = input[i / sizeof(z_word_t) + 1] ^ next2;
+        in3 = input[i / sizeof(z_word_t) + 2] ^ next3;
+        in4 = input[i / sizeof(z_word_t) + 3] ^ next4;
+        in5 = input[i / sizeof(z_word_t) + 4] ^ next5;
+        in6 = input[i / sizeof(z_word_t) + 5] ^ next6;
+        in7 = input[i / sizeof(z_word_t) + 6] ^ next7;
+        in8 = input[i / sizeof(z_word_t) + 7] ^ next8 ^ in1;
+        in9 = input[i / sizeof(z_word_t) + 8] ^ next9 ^ in2;
+        in10 = input[i / sizeof(z_word_t) + 9] ^ next10 ^ in3;
+        in11 = input[i / sizeof(z_word_t) + 10] ^ next11 ^ in4;
+        in12 = input[i / sizeof(z_word_t) + 11] ^ next12 ^ in1 ^ in5;
+        in13 = input[i / sizeof(z_word_t) + 12] ^ next13 ^ in2 ^ in6;
+        in14 = input[i / sizeof(z_word_t) + 13] ^ next14 ^ in3 ^ in7;
+        in15 = input[i / sizeof(z_word_t) + 14] ^ next15 ^ in4 ^ in8;
+        in16 = input[i / sizeof(z_word_t) + 15] ^ next16 ^ in5 ^ in9;
+        in17 = input[i / sizeof(z_word_t) + 16] ^ next17 ^ in6 ^ in10;
+        in18 = input[i / sizeof(z_word_t) + 17] ^ next18 ^ in7 ^ in11;
+        in19 = input[i / sizeof(z_word_t) + 18] ^ next19 ^ in8 ^ in12;
+        in20 = input[i / sizeof(z_word_t) + 19] ^ next20 ^ in9 ^ in13;
+        in21 = input[i / sizeof(z_word_t) + 20] ^ next21 ^ in10 ^ in14;
+        in22 = input[i / sizeof(z_word_t) + 21] ^ next22 ^ in11 ^ in15;
+        in23 = input[i / sizeof(z_word_t) + 22] ^ in1 ^ in12 ^ in16;
+        in24 = input[i / sizeof(z_word_t) + 23] ^ in2 ^ in13 ^ in17;
+        in25 = input[i / sizeof(z_word_t) + 24] ^ in3 ^ in14 ^ in18;
+        in26 = input[i / sizeof(z_word_t) + 25] ^ in4 ^ in15 ^ in19;
+        in27 = input[i / sizeof(z_word_t) + 26] ^ in5 ^ in16 ^ in20;
+        in28 = input[i / sizeof(z_word_t) + 27] ^ in6 ^ in17 ^ in21;
+        in29 = input[i / sizeof(z_word_t) + 28] ^ in7 ^ in18 ^ in22;
+        in30 = input[i / sizeof(z_word_t) + 29] ^ in8 ^ in19 ^ in23;
+        in31 = input[i / sizeof(z_word_t) + 30] ^ in9 ^ in20 ^ in24;
+        in32 = input[i / sizeof(z_word_t) + 31] ^ in10 ^ in21 ^ in25;
 
         next1 = in11 ^ in22 ^ in26;
         next2 = in12 ^ in23 ^ in27;
@@ -355,38 +355,38 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         int outoffset1 = ((i / sizeof(z_word_t)) + 14848) % bitbuffersizezwords;
         int outoffset2 = ((i / sizeof(z_word_t)) + 14880) % bitbuffersizezwords;
 
-        in1 = *((z_word_t*) (input + i + (0 * sizeof(z_word_t)))) ^ next1;
-        in2 = *((z_word_t*) (input + i + (1 * sizeof(z_word_t)))) ^ next2;
-        in3 = *((z_word_t*) (input + i + (2 * sizeof(z_word_t)))) ^ next3;
-        in4 = *((z_word_t*) (input + i + (3 * sizeof(z_word_t)))) ^ next4;
-        in5 = *((z_word_t*) (input + i + (4 * sizeof(z_word_t)))) ^ next5;
-        in6 = *((z_word_t*) (input + i + (5 * sizeof(z_word_t)))) ^ next6;
-        in7 = *((z_word_t*) (input + i + (6 * sizeof(z_word_t)))) ^ next7;
-        in8 = *((z_word_t*) (input + i + (7 * sizeof(z_word_t)))) ^ next8 ^ in1;
-        in9 = *((z_word_t*) (input + i + (8 * sizeof(z_word_t)))) ^ next9 ^ in2;
-        in10 = *((z_word_t*) (input + i + (9 * sizeof(z_word_t)))) ^ next10 ^ in3;
-        in11 = *((z_word_t*) (input + i + (10 * sizeof(z_word_t)))) ^ next11 ^ in4;
-        in12 = *((z_word_t*) (input + i + (11 * sizeof(z_word_t)))) ^ next12 ^ in1 ^ in5;
-        in13 = *((z_word_t*) (input + i + (12 * sizeof(z_word_t)))) ^ next13 ^ in2 ^ in6;
-        in14 = *((z_word_t*) (input + i + (13 * sizeof(z_word_t)))) ^ next14 ^ in3 ^ in7;
-        in15 = *((z_word_t*) (input + i + (14 * sizeof(z_word_t)))) ^ next15 ^ in4 ^ in8;
-        in16 = *((z_word_t*) (input + i + (15 * sizeof(z_word_t)))) ^ next16 ^ in5 ^ in9;
-        in17 = *((z_word_t*) (input + i + (16 * sizeof(z_word_t)))) ^ next17 ^ in6 ^ in10;
-        in18 = *((z_word_t*) (input + i + (17 * sizeof(z_word_t)))) ^ next18 ^ in7 ^ in11;
-        in19 = *((z_word_t*) (input + i + (18 * sizeof(z_word_t)))) ^ next19 ^ in8 ^ in12;
-        in20 = *((z_word_t*) (input + i + (19 * sizeof(z_word_t)))) ^ next20 ^ in9 ^ in13;
-        in21 = *((z_word_t*) (input + i + (20 * sizeof(z_word_t)))) ^ next21 ^ in10 ^ in14;
-        in22 = *((z_word_t*) (input + i + (21 * sizeof(z_word_t)))) ^ next22 ^ in11 ^ in15;
-        in23 = *((z_word_t*) (input + i + (22 * sizeof(z_word_t)))) ^ in1 ^ in12 ^ in16 ^ bitbuffer[inoffset + 22];
-        in24 = *((z_word_t*) (input + i + (23 * sizeof(z_word_t)))) ^ in2 ^ in13 ^ in17 ^ bitbuffer[inoffset + 23];
-        in25 = *((z_word_t*) (input + i + (24 * sizeof(z_word_t)))) ^ in3 ^ in14 ^ in18 ^ bitbuffer[inoffset + 24];
-        in26 = *((z_word_t*) (input + i + (25 * sizeof(z_word_t)))) ^ in4 ^ in15 ^ in19 ^ bitbuffer[inoffset + 25];
-        in27 = *((z_word_t*) (input + i + (26 * sizeof(z_word_t)))) ^ in5 ^ in16 ^ in20 ^ bitbuffer[inoffset + 26];
-        in28 = *((z_word_t*) (input + i + (27 * sizeof(z_word_t)))) ^ in6 ^ in17 ^ in21 ^ bitbuffer[inoffset + 27];
-        in29 = *((z_word_t*) (input + i + (28 * sizeof(z_word_t)))) ^ in7 ^ in18 ^ in22 ^ bitbuffer[inoffset + 28];
-        in30 = *((z_word_t*) (input + i + (29 * sizeof(z_word_t)))) ^ in8 ^ in19 ^ in23 ^ bitbuffer[inoffset + 29];
-        in31 = *((z_word_t*) (input + i + (30 * sizeof(z_word_t)))) ^ in9 ^ in20 ^ in24 ^ bitbuffer[inoffset + 30];
-        in32 = *((z_word_t*) (input + i + (31 * sizeof(z_word_t)))) ^ in10 ^ in21 ^ in25 ^ bitbuffer[inoffset + 31];
+        in1 = input[i / sizeof(z_word_t) + 0] ^ next1;
+        in2 = input[i / sizeof(z_word_t) + 1] ^ next2;
+        in3 = input[i / sizeof(z_word_t) + 2] ^ next3;
+        in4 = input[i / sizeof(z_word_t) + 3] ^ next4;
+        in5 = input[i / sizeof(z_word_t) + 4] ^ next5;
+        in6 = input[i / sizeof(z_word_t) + 5] ^ next6;
+        in7 = input[i / sizeof(z_word_t) + 6] ^ next7;
+        in8 = input[i / sizeof(z_word_t) + 7] ^ next8 ^ in1;
+        in9 = input[i / sizeof(z_word_t) + 8] ^ next9 ^ in2;
+        in10 = input[i / sizeof(z_word_t) + 9] ^ next10 ^ in3;
+        in11 = input[i / sizeof(z_word_t) + 10] ^ next11 ^ in4;
+        in12 = input[i / sizeof(z_word_t) + 11] ^ next12 ^ in1 ^ in5;
+        in13 = input[i / sizeof(z_word_t) + 12] ^ next13 ^ in2 ^ in6;
+        in14 = input[i / sizeof(z_word_t) + 13] ^ next14 ^ in3 ^ in7;
+        in15 = input[i / sizeof(z_word_t) + 14] ^ next15 ^ in4 ^ in8;
+        in16 = input[i / sizeof(z_word_t) + 15] ^ next16 ^ in5 ^ in9;
+        in17 = input[i / sizeof(z_word_t) + 16] ^ next17 ^ in6 ^ in10;
+        in18 = input[i / sizeof(z_word_t) + 17] ^ next18 ^ in7 ^ in11;
+        in19 = input[i / sizeof(z_word_t) + 18] ^ next19 ^ in8 ^ in12;
+        in20 = input[i / sizeof(z_word_t) + 19] ^ next20 ^ in9 ^ in13;
+        in21 = input[i / sizeof(z_word_t) + 20] ^ next21 ^ in10 ^ in14;
+        in22 = input[i / sizeof(z_word_t) + 21] ^ next22 ^ in11 ^ in15;
+        in23 = input[i / sizeof(z_word_t) + 22] ^ in1 ^ in12 ^ in16 ^ bitbuffer[inoffset + 22];
+        in24 = input[i / sizeof(z_word_t) + 23] ^ in2 ^ in13 ^ in17 ^ bitbuffer[inoffset + 23];
+        in25 = input[i / sizeof(z_word_t) + 24] ^ in3 ^ in14 ^ in18 ^ bitbuffer[inoffset + 24];
+        in26 = input[i / sizeof(z_word_t) + 25] ^ in4 ^ in15 ^ in19 ^ bitbuffer[inoffset + 25];
+        in27 = input[i / sizeof(z_word_t) + 26] ^ in5 ^ in16 ^ in20 ^ bitbuffer[inoffset + 26];
+        in28 = input[i / sizeof(z_word_t) + 27] ^ in6 ^ in17 ^ in21 ^ bitbuffer[inoffset + 27];
+        in29 = input[i / sizeof(z_word_t) + 28] ^ in7 ^ in18 ^ in22 ^ bitbuffer[inoffset + 28];
+        in30 = input[i / sizeof(z_word_t) + 29] ^ in8 ^ in19 ^ in23 ^ bitbuffer[inoffset + 29];
+        in31 = input[i / sizeof(z_word_t) + 30] ^ in9 ^ in20 ^ in24 ^ bitbuffer[inoffset + 30];
+        in32 = input[i / sizeof(z_word_t) + 31] ^ in10 ^ in21 ^ in25 ^ bitbuffer[inoffset + 31];
 
         next1 = in11 ^ in22 ^ in26;
         next2 = in12 ^ in23 ^ in27;
@@ -454,38 +454,38 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         int outoffset1 = ((i / sizeof(z_word_t)) + 14848) % bitbuffersizezwords;
         int outoffset2 = ((i / sizeof(z_word_t)) + 14880) % bitbuffersizezwords;
 
-        in1 = *((z_word_t*) (input + i + (0 * sizeof(z_word_t)))) ^ next1 ^ bitbuffer[inoffset + 0];
-        in2 = *((z_word_t*) (input + i + (1 * sizeof(z_word_t)))) ^ next2 ^ bitbuffer[inoffset + 1];
-        in3 = *((z_word_t*) (input + i + (2 * sizeof(z_word_t)))) ^ next3 ^ bitbuffer[inoffset + 2];
-        in4 = *((z_word_t*) (input + i + (3 * sizeof(z_word_t)))) ^ next4 ^ bitbuffer[inoffset + 3];
-        in5 = *((z_word_t*) (input + i + (4 * sizeof(z_word_t)))) ^ next5 ^ bitbuffer[inoffset + 4];
-        in6 = *((z_word_t*) (input + i + (5 * sizeof(z_word_t)))) ^ next6 ^ bitbuffer[inoffset + 5];
-        in7 = *((z_word_t*) (input + i + (6 * sizeof(z_word_t)))) ^ next7 ^ bitbuffer[inoffset + 6];
-        in8 = *((z_word_t*) (input + i + (7 * sizeof(z_word_t)))) ^ next8 ^ in1 ^ bitbuffer[inoffset + 7];
-        in9 = *((z_word_t*) (input + i + (8 * sizeof(z_word_t)))) ^ next9 ^ in2 ^ bitbuffer[inoffset + 8];
-        in10 = *((z_word_t*) (input + i + (9 * sizeof(z_word_t)))) ^ next10 ^ in3 ^ bitbuffer[inoffset + 9];
-        in11 = *((z_word_t*) (input + i + (10 * sizeof(z_word_t)))) ^ next11 ^ in4 ^ bitbuffer[inoffset + 10];
-        in12 = *((z_word_t*) (input + i + (11 * sizeof(z_word_t)))) ^ next12 ^ in1 ^ in5 ^ bitbuffer[inoffset + 11];
-        in13 = *((z_word_t*) (input + i + (12 * sizeof(z_word_t)))) ^ next13 ^ in2 ^ in6 ^ bitbuffer[inoffset + 12];
-        in14 = *((z_word_t*) (input + i + (13 * sizeof(z_word_t)))) ^ next14 ^ in3 ^ in7 ^ bitbuffer[inoffset + 13];
-        in15 = *((z_word_t*) (input + i + (14 * sizeof(z_word_t)))) ^ next15 ^ in4 ^ in8 ^ bitbuffer[inoffset + 14];
-        in16 = *((z_word_t*) (input + i + (15 * sizeof(z_word_t)))) ^ next16 ^ in5 ^ in9 ^ bitbuffer[inoffset + 15];
-        in17 = *((z_word_t*) (input + i + (16 * sizeof(z_word_t)))) ^ next17 ^ in6 ^ in10 ^ bitbuffer[inoffset + 16];
-        in18 = *((z_word_t*) (input + i + (17 * sizeof(z_word_t)))) ^ next18 ^ in7 ^ in11 ^ bitbuffer[inoffset + 17];
-        in19 = *((z_word_t*) (input + i + (18 * sizeof(z_word_t)))) ^ next19 ^ in8 ^ in12 ^ bitbuffer[inoffset + 18];
-        in20 = *((z_word_t*) (input + i + (19 * sizeof(z_word_t)))) ^ next20 ^ in9 ^ in13 ^ bitbuffer[inoffset + 19];
-        in21 = *((z_word_t*) (input + i + (20 * sizeof(z_word_t)))) ^ next21 ^ in10 ^ in14 ^ bitbuffer[inoffset + 20];
-        in22 = *((z_word_t*) (input + i + (21 * sizeof(z_word_t)))) ^ next22 ^ in11 ^ in15 ^ bitbuffer[inoffset + 21];
-        in23 = *((z_word_t*) (input + i + (22 * sizeof(z_word_t)))) ^ in1 ^ in12 ^ in16 ^ bitbuffer[inoffset + 22];
-        in24 = *((z_word_t*) (input + i + (23 * sizeof(z_word_t)))) ^ in2 ^ in13 ^ in17 ^ bitbuffer[inoffset + 23];
-        in25 = *((z_word_t*) (input + i + (24 * sizeof(z_word_t)))) ^ in3 ^ in14 ^ in18 ^ bitbuffer[inoffset + 24];
-        in26 = *((z_word_t*) (input + i + (25 * sizeof(z_word_t)))) ^ in4 ^ in15 ^ in19 ^ bitbuffer[inoffset + 25];
-        in27 = *((z_word_t*) (input + i + (26 * sizeof(z_word_t)))) ^ in5 ^ in16 ^ in20 ^ bitbuffer[inoffset + 26];
-        in28 = *((z_word_t*) (input + i + (27 * sizeof(z_word_t)))) ^ in6 ^ in17 ^ in21 ^ bitbuffer[inoffset + 27];
-        in29 = *((z_word_t*) (input + i + (28 * sizeof(z_word_t)))) ^ in7 ^ in18 ^ in22 ^ bitbuffer[inoffset + 28];
-        in30 = *((z_word_t*) (input + i + (29 * sizeof(z_word_t)))) ^ in8 ^ in19 ^ in23 ^ bitbuffer[inoffset + 29];
-        in31 = *((z_word_t*) (input + i + (30 * sizeof(z_word_t)))) ^ in9 ^ in20 ^ in24 ^ bitbuffer[inoffset + 30];
-        in32 = *((z_word_t*) (input + i + (31 * sizeof(z_word_t)))) ^ in10 ^ in21 ^ in25 ^ bitbuffer[inoffset + 31];
+        in1 = input[i / sizeof(z_word_t) + 0] ^ next1 ^ bitbuffer[inoffset + 0];
+        in2 = input[i / sizeof(z_word_t) + 1] ^ next2 ^ bitbuffer[inoffset + 1];
+        in3 = input[i / sizeof(z_word_t) + 2] ^ next3 ^ bitbuffer[inoffset + 2];
+        in4 = input[i / sizeof(z_word_t) + 3] ^ next4 ^ bitbuffer[inoffset + 3];
+        in5 = input[i / sizeof(z_word_t) + 4] ^ next5 ^ bitbuffer[inoffset + 4];
+        in6 = input[i / sizeof(z_word_t) + 5] ^ next6 ^ bitbuffer[inoffset + 5];
+        in7 = input[i / sizeof(z_word_t) + 6] ^ next7 ^ bitbuffer[inoffset + 6];
+        in8 = input[i / sizeof(z_word_t) + 7] ^ next8 ^ in1 ^ bitbuffer[inoffset + 7];
+        in9 = input[i / sizeof(z_word_t) + 8] ^ next9 ^ in2 ^ bitbuffer[inoffset + 8];
+        in10 = input[i / sizeof(z_word_t) + 9] ^ next10 ^ in3 ^ bitbuffer[inoffset + 9];
+        in11 = input[i / sizeof(z_word_t) + 10] ^ next11 ^ in4 ^ bitbuffer[inoffset + 10];
+        in12 = input[i / sizeof(z_word_t) + 11] ^ next12 ^ in1 ^ in5 ^ bitbuffer[inoffset + 11];
+        in13 = input[i / sizeof(z_word_t) + 12] ^ next13 ^ in2 ^ in6 ^ bitbuffer[inoffset + 12];
+        in14 = input[i / sizeof(z_word_t) + 13] ^ next14 ^ in3 ^ in7 ^ bitbuffer[inoffset + 13];
+        in15 = input[i / sizeof(z_word_t) + 14] ^ next15 ^ in4 ^ in8 ^ bitbuffer[inoffset + 14];
+        in16 = input[i / sizeof(z_word_t) + 15] ^ next16 ^ in5 ^ in9 ^ bitbuffer[inoffset + 15];
+        in17 = input[i / sizeof(z_word_t) + 16] ^ next17 ^ in6 ^ in10 ^ bitbuffer[inoffset + 16];
+        in18 = input[i / sizeof(z_word_t) + 17] ^ next18 ^ in7 ^ in11 ^ bitbuffer[inoffset + 17];
+        in19 = input[i / sizeof(z_word_t) + 18] ^ next19 ^ in8 ^ in12 ^ bitbuffer[inoffset + 18];
+        in20 = input[i / sizeof(z_word_t) + 19] ^ next20 ^ in9 ^ in13 ^ bitbuffer[inoffset + 19];
+        in21 = input[i / sizeof(z_word_t) + 20] ^ next21 ^ in10 ^ in14 ^ bitbuffer[inoffset + 20];
+        in22 = input[i / sizeof(z_word_t) + 21] ^ next22 ^ in11 ^ in15 ^ bitbuffer[inoffset + 21];
+        in23 = input[i / sizeof(z_word_t) + 22] ^ in1 ^ in12 ^ in16 ^ bitbuffer[inoffset + 22];
+        in24 = input[i / sizeof(z_word_t) + 23] ^ in2 ^ in13 ^ in17 ^ bitbuffer[inoffset + 23];
+        in25 = input[i / sizeof(z_word_t) + 24] ^ in3 ^ in14 ^ in18 ^ bitbuffer[inoffset + 24];
+        in26 = input[i / sizeof(z_word_t) + 25] ^ in4 ^ in15 ^ in19 ^ bitbuffer[inoffset + 25];
+        in27 = input[i / sizeof(z_word_t) + 26] ^ in5 ^ in16 ^ in20 ^ bitbuffer[inoffset + 26];
+        in28 = input[i / sizeof(z_word_t) + 27] ^ in6 ^ in17 ^ in21 ^ bitbuffer[inoffset + 27];
+        in29 = input[i / sizeof(z_word_t) + 28] ^ in7 ^ in18 ^ in22 ^ bitbuffer[inoffset + 28];
+        in30 = input[i / sizeof(z_word_t) + 29] ^ in8 ^ in19 ^ in23 ^ bitbuffer[inoffset + 29];
+        in31 = input[i / sizeof(z_word_t) + 30] ^ in9 ^ in20 ^ in24 ^ bitbuffer[inoffset + 30];
+        in32 = input[i / sizeof(z_word_t) + 31] ^ in10 ^ in21 ^ in25 ^ bitbuffer[inoffset + 31];
 
         next1 = in11 ^ in22 ^ in26;
         next2 = in12 ^ in23 ^ in27;
@@ -594,8 +594,8 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         uint64_t out4;
         uint64_t out5;
 
-        in1 = *((uint64_t*) (input + i)) ^ bitbuffer[(i / sizeof(uint64_t)) % bitbuffersizeqwords];
-        in2 = *((uint64_t*) (input + i + (8*1))) ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
+        in1 = input[i / sizeof(z_word_t)] ^ bitbuffer[(i / sizeof(uint64_t)) % bitbuffersizeqwords];
+        in2 = input[i / sizeof(z_word_t) + 1] ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
 #if BYTE_ORDER == BIG_ENDIAN
         in1 = ZSWAP64(in1);
         in2 = ZSWAP64(in2);
@@ -613,8 +613,8 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         b3 = (in2 >> 45) ^ (in2 << 44);
         b4 = (in2 >> 20);
 
-        in3 = *((uint64_t*) (input + i + (8*2))) ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
-        in4 = *((uint64_t*) (input + i + (8*3))) ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
+        in3 = input[i / sizeof(z_word_t) + 2] ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
+        in4 = input[i / sizeof(z_word_t) + 3] ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
 #if BYTE_ORDER == BIG_ENDIAN
         in3 = ZSWAP64(in3);
         in4 = ZSWAP64(in4);
@@ -654,7 +654,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
     next5 = ZSWAP64(next5);
 #endif
 
-    memcpy(final, input+i, len-i);
+    memcpy(final, input + (i / sizeof(z_word_t)), len - i);
     *((uint64_t*) (final + (0*8))) ^= next1;
     *((uint64_t*) (final + (1*8))) ^= next2;
     *((uint64_t*) (final + (2*8))) ^= next3;
@@ -669,9 +669,9 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
 }
 
 /* Implement Chorba algorithm from https://arxiv.org/abs/2412.16398 */
-uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t len) {
-    const uint8_t* input = buf;
-    uint8_t final[72] = {0};
+uint32_t chorba_small_nondestructive (uint32_t crc, const uint64_t* buf, size_t len) {
+    const uint64_t* input = buf;
+    uint64_t final[9] = {0};
     uint64_t next1 = crc;
     crc = 0;
     uint64_t next2 = 0;
@@ -696,8 +696,8 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t l
         uint64_t out4;
         uint64_t out5;
 
-        in1 = *((uint64_t*) (input + i));
-        in2 = *((uint64_t*) (input + i + (8*1)));
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
 #if BYTE_ORDER == BIG_ENDIAN
         in1 = ZSWAP64(in1);
         in2 = ZSWAP64(in2);
@@ -715,8 +715,8 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t l
         b3 = (in2 >> 45) ^ (in2 << 44);
         b4 = (in2 >> 20);
 
-        in3 = *((uint64_t*) (input + i + (8*2)));
-        in4 = *((uint64_t*) (input + i + (8*3)));
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
 #if BYTE_ORDER == BIG_ENDIAN
         in3 = ZSWAP64(in3);
         in4 = ZSWAP64(in4);
@@ -756,26 +756,39 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t l
     next5 = ZSWAP64(next5);
 #endif
 
-    memcpy(final, input+i, len-i);
-    *((uint64_t*) (final + (0*8))) ^= next1;
-    *((uint64_t*) (final + (1*8))) ^= next2;
-    *((uint64_t*) (final + (2*8))) ^= next3;
-    *((uint64_t*) (final + (3*8))) ^= next4;
-    *((uint64_t*) (final + (4*8))) ^= next5;
+    memcpy(final, input+(i / sizeof(uint64_t)), len-i);
+    final[0] ^= next1;
+    final[1] ^= next2;
+    final[2] ^= next3;
+    final[3] ^= next4;
+    final[4] ^= next5;
 
-    crc = crc32_braid_base(crc, final, len-i);
+    crc = crc32_braid_base(crc, (uint8_t*) final, len-i);
 
     return crc;
 }
 
 Z_INTERNAL uint32_t PREFIX(crc32_braid)(uint32_t crc, const uint8_t *buf, size_t len) {
     uint32_t c;
+    uint64_t* aligned_buf;
+    size_t aligned_len;
 
     c = (~crc) & 0xffffffff;
-    if(len > 512 * 1024)
-        c = chorba_118960_nondestructive(c, buf, len);
-    else if (len > 72)
-        c = chorba_small_nondestructive(c, buf, len);
+    unsigned long algn_diff = ((uintptr_t)8 - ((uintptr_t)buf & 0xF)) & 0xF;
+    if (algn_diff < len) {
+        if (algn_diff) {
+            c = crc32_braid_base(c, buf, algn_diff);
+        }
+        aligned_buf = (uint64_t*) (buf + algn_diff);
+        aligned_len = len - algn_diff;
+        if(aligned_len > 512 * 1024)
+            c = chorba_118960_nondestructive(c, aligned_buf, aligned_len);
+        else if (aligned_len > 72)
+            c = chorba_small_nondestructive(c, aligned_buf, aligned_len);
+        else {
+            c = crc32_braid_base(c, (uint8_t*) aligned_buf, aligned_len);
+        }
+    }
     else {
         c = crc32_braid_base(c, buf, len);
     }
