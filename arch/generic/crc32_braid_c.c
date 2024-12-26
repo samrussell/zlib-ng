@@ -763,9 +763,7 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t l
     *((uint64_t*) (final + (3*8))) ^= next4;
     *((uint64_t*) (final + (4*8))) ^= next5;
 
-    for(int j = 0; j<len-i; j++) {
-        crc = crc_table[(crc ^ final[j]) & 0xff] ^ (crc >> 8);
-    }
+    crc = crc32_braid_base(crc, final, len-i);
 
     return crc;
 }
