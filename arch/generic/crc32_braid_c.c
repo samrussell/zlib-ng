@@ -594,8 +594,14 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         uint64_t out4;
         uint64_t out5;
 
-        in1 = *((uint64_t*) (input + i)) ^ next1 ^ bitbuffer[(i / sizeof(uint64_t)) % bitbuffersizeqwords];
-        in2 = *((uint64_t*) (input + i + (8*1))) ^ next2 ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
+        in1 = *((uint64_t*) (input + i));
+        in2 = *((uint64_t*) (input + i + (8*1)));
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in1);
+#endif
+        in1 ^= next1 ^ bitbuffer[(i / sizeof(uint64_t)) % bitbuffersizeqwords];
+        in2 ^= next2 ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
 
         a1 = (in1 << 17) ^ (in1 << 55);
         a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
@@ -607,8 +613,14 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         b3 = (in2 >> 45) ^ (in2 << 44);
         b4 = (in2 >> 20);
 
-        in3 = *((uint64_t*) (input + i + (8*2))) ^ next3 ^ a1 ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
-        in4 = *((uint64_t*) (input + i + (8*3))) ^ next4 ^ a2 ^ b1 ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
+        in3 = *((uint64_t*) (input + i + (8*2)));
+        in4 = *((uint64_t*) (input + i + (8*3)));
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in1);
+#endif
+        in3 ^= next3 ^ a1 ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
+        in4 ^= next4 ^ a2 ^ b1 ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
 
         c1 = (in3 << 17) ^ (in3 << 55);
         c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
@@ -633,6 +645,14 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         next5 = out5;
 
     }
+
+#if BYTE_ORDER == BIG_ENDIAN
+    next1 = ZSWAP64(next1);
+    next2 = ZSWAP64(next2);
+    next3 = ZSWAP64(next3);
+    next4 = ZSWAP64(next4);
+    next5 = ZSWAP64(next5);
+#endif
 
     memcpy(final, input+i, len-i);
     *((uint64_t*) (final + (0*8))) ^= next1;
