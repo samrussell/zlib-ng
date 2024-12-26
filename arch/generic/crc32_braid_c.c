@@ -445,7 +445,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const uint8_t* input, size_
         bitbuffer[outoffset2 + 21] = in32;
     }
 
-    for(; i + (118960 + 4096) * sizeof(z_word_t) < len; i += (32 * sizeof(z_word_t))) {
+    for(; i + (14870 + 64) * sizeof(z_word_t) < len; i += (32 * sizeof(z_word_t))) {
         z_word_t in1, in2, in3, in4, in5, in6, in7, in8;
         z_word_t in9, in10, in11, in12, in13, in14, in15, in16;
         z_word_t in17, in18, in19, in20, in21, in22, in23, in24;
