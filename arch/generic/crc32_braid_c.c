@@ -576,7 +576,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
     next3 = 0;
     next4 = 0;
     next5 = 0;
-    uint8_t final[72] = {0};
+    uint64_t final[9] = {0};
 
     for(; i + 72 < len; i += 32) {
         uint64_t in1;
@@ -595,7 +595,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         uint64_t out5;
 
         in1 = input[i / sizeof(z_word_t)] ^ bitbuffer[(i / sizeof(uint64_t)) % bitbuffersizeqwords];
-        in2 = input[i / sizeof(z_word_t) + 1] ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
+        in2 = input[(i + 8) / sizeof(z_word_t)] ^ bitbuffer[(i / sizeof(uint64_t) + 1) % bitbuffersizeqwords];
 #if BYTE_ORDER == BIG_ENDIAN
         in1 = ZSWAP64(in1);
         in2 = ZSWAP64(in2);
@@ -613,8 +613,8 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         b3 = (in2 >> 45) ^ (in2 << 44);
         b4 = (in2 >> 20);
 
-        in3 = input[i / sizeof(z_word_t) + 2] ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
-        in4 = input[i / sizeof(z_word_t) + 3] ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
+        in3 = input[(i + 16) / sizeof(z_word_t)] ^ bitbuffer[(i / sizeof(uint64_t) + 2) % bitbuffersizeqwords];
+        in4 = input[(i + 24) / sizeof(z_word_t)] ^ bitbuffer[(i / sizeof(uint64_t) + 3) % bitbuffersizeqwords];
 #if BYTE_ORDER == BIG_ENDIAN
         in3 = ZSWAP64(in3);
         in4 = ZSWAP64(in4);
@@ -654,15 +654,17 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
     next5 = ZSWAP64(next5);
 #endif
 
-    memcpy(final, input + (i / sizeof(z_word_t)), len - i);
-    *((uint64_t*) (final + (0*8))) ^= next1;
-    *((uint64_t*) (final + (1*8))) ^= next2;
-    *((uint64_t*) (final + (2*8))) ^= next3;
-    *((uint64_t*) (final + (3*8))) ^= next4;
-    *((uint64_t*) (final + (4*8))) ^= next5;
+    memcpy(final, input+(i / sizeof(uint64_t)), len-i);
+    final[0] ^= next1;
+    final[1] ^= next2;
+    final[2] ^= next3;
+    final[3] ^= next4;
+    final[4] ^= next5;
+
+    uint8_t* final_bytes = (uint8_t*) final;
 
     for(int j = 0; j<len-i; j++) {
-        crc = crc_table[(crc ^ final[j] ^ bitbufferbytes[(j+i) % bitbuffersizebytes]) & 0xff] ^ (crc >> 8);
+        crc = crc_table[(crc ^ final_bytes[j] ^ bitbufferbytes[(j+i) % bitbuffersizebytes]) & 0xff] ^ (crc >> 8);
     }
 
     return crc;
