@@ -700,7 +700,7 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint8_t* buf, size_t l
         in2 = *((uint64_t*) (input + i + (8*1)));
 #if BYTE_ORDER == BIG_ENDIAN
         in1 = ZSWAP64(in1);
-        in2 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
 #endif
         in1 ^=next1;
         in2 ^=next2;
