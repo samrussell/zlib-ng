@@ -217,10 +217,10 @@ Z_INTERNAL uint32_t crc32_braid_base(uint32_t c, const uint8_t *buf, size_t len)
 #define bitbuffersizeqwords (bitbuffersizebytes / sizeof(uint64_t))
 
 uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size_t len) {
-    z_word_t* bitbuffer = aligned_alloc(sizeof(z_word_t), bitbuffersizebytes);
+    ALIGNED_(16) z_word_t bitbuffer[bitbuffersizezwords];
     const uint8_t* bitbufferbytes = (const uint8_t*) bitbuffer;
 
-    int i = 0;
+    size_t i = 0;
 
     z_word_t next1 = crc;
     z_word_t next2 = 0;
@@ -445,7 +445,7 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         bitbuffer[outoffset2 + 21] = in32;
     }
 
-    for(; i + (14870 + 64) * sizeof(z_word_t) < len; i += (32 * sizeof(z_word_t))) {
+    for(; (i + (14870 + 64) * sizeof(z_word_t)) < len; i += (32 * sizeof(z_word_t))) {
         z_word_t in1, in2, in3, in4, in5, in6, in7, in8;
         z_word_t in9, in10, in11, in12, in13, in14, in15, in16;
         z_word_t in17, in18, in19, in20, in21, in22, in23, in24;
@@ -571,14 +571,14 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         bitbuffer[(j + (i / sizeof(z_word_t))) % bitbuffersizezwords] = 0;
     }
 
-    next1 = 0;
-    next2 = 0;
-    next3 = 0;
-    next4 = 0;
-    next5 = 0;
+    uint64_t next1_64 = 0;
+    uint64_t next2_64 = 0;
+    uint64_t next3_64 = 0;
+    uint64_t next4_64 = 0;
+    uint64_t next5_64 = 0;
     uint64_t final[9] = {0};
 
-    for(; i + 72 < len; i += 32) {
+    for(; (i + 72 < len); i += 32) {
         uint64_t in1;
         uint64_t in2;
         uint64_t in3;
@@ -600,8 +600,8 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         in1 = ZSWAP64(in1);
         in2 = ZSWAP64(in2);
 #endif
-        in1 ^= next1;
-        in2 ^= next2;
+        in1 ^= next1_64;
+        in2 ^= next2_64;
 
         a1 = (in1 << 17) ^ (in1 << 55);
         a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
@@ -619,8 +619,8 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         in3 = ZSWAP64(in3);
         in4 = ZSWAP64(in4);
 #endif
-        in3 ^= next3 ^ a1;
-        in4 ^= next4 ^ a2 ^ b1;
+        in3 ^= next3_64 ^ a1;
+        in4 ^= next4_64 ^ a2 ^ b1;
 
         c1 = (in3 << 17) ^ (in3 << 55);
         c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
@@ -638,36 +638,34 @@ uint32_t chorba_118960_nondestructive (uint32_t crc, const z_word_t* input, size
         out4 = c4 ^ d3;
         out5 = d4;
 
-        next1 = next5 ^ out1;
-        next2 = out2;
-        next3 = out3;
-        next4 = out4;
-        next5 = out5;
+        next1_64 = next5_64 ^ out1;
+        next2_64 = out2;
+        next3_64 = out3;
+        next4_64 = out4;
+        next5_64 = out5;
 
     }
 
 #if BYTE_ORDER == BIG_ENDIAN
-    next1 = ZSWAP64(next1);
-    next2 = ZSWAP64(next2);
-    next3 = ZSWAP64(next3);
-    next4 = ZSWAP64(next4);
-    next5 = ZSWAP64(next5);
+    next1_64 = ZSWAP64(next1_64);
+    next2_64 = ZSWAP64(next2_64);
+    next3_64 = ZSWAP64(next3_64);
+    next4_64 = ZSWAP64(next4_64);
+    next5_64 = ZSWAP64(next5_64);
 #endif
 
     memcpy(final, input+(i / sizeof(uint64_t)), len-i);
-    final[0] ^= next1;
-    final[1] ^= next2;
-    final[2] ^= next3;
-    final[3] ^= next4;
-    final[4] ^= next5;
+    final[0] ^= next1_64;
+    final[1] ^= next2_64;
+    final[2] ^= next3_64;
+    final[3] ^= next4_64;
+    final[4] ^= next5_64;
 
     uint8_t* final_bytes = (uint8_t*) final;
 
-    for(int j = 0; j<len-i; j++) {
+    for(size_t j = 0; j < (len-i); j++) {
         crc = crc_table[(crc ^ final_bytes[j] ^ bitbufferbytes[(j+i) % bitbuffersizebytes]) & 0xff] ^ (crc >> 8);
     }
-
-    free(bitbuffer);
 
     return crc;
 }
@@ -683,8 +681,8 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint64_t* buf, size_t 
     uint64_t next4 = 0;
     uint64_t next5 = 0;
 
-    int i = 0;
-    for(; i + 72 < len; i += 32) {
+    size_t i = 0;
+    for(; (i + 72) < len; i += 32) {
         uint64_t in1;
         uint64_t in2;
         uint64_t in3;
@@ -785,8 +783,8 @@ Z_INTERNAL uint32_t PREFIX(crc32_braid)(uint32_t crc, const uint8_t *buf, size_t
         }
         aligned_buf = (uint64_t*) (buf + algn_diff);
         aligned_len = len - algn_diff;
-        if(aligned_len > 512 * 1024)
-            c = chorba_118960_nondestructive(c, aligned_buf, aligned_len);
+        if(aligned_len > (sizeof(z_word_t) * 64) * 1024)
+            c = chorba_118960_nondestructive(c, (z_word_t*) aligned_buf, aligned_len);
         else if (aligned_len > 72)
             c = chorba_small_nondestructive(c, aligned_buf, aligned_len);
         else {
