@@ -684,7 +684,7 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint64_t* buf, size_t 
     size_t i = 0;
 
     /* This is weird, doing for vs while drops 10% off the exec time */
-    for(; (i + 40 + 256 + 32) < len; i += 32) {
+    for(; (i + 256 + 40 + 32 + 32) < len; i += 32) {
         uint64_t in1;
         uint64_t in2;
         uint64_t in3;
