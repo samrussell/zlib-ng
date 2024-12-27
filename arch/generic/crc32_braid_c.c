@@ -682,7 +682,475 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint64_t* buf, size_t 
     uint64_t next5 = 0;
 
     size_t i = 0;
-    for(; (i + 72) < len; i += 32) {
+
+    /* This is weird, doing for vs while drops 10% off the exec time */
+    for(; (i + 40 + 256 + 32) < len; i += 32) {
+        uint64_t in1;
+        uint64_t in2;
+        uint64_t in3;
+        uint64_t in4;
+        uint64_t a1, a2, a3, a4;
+        uint64_t b1, b2, b3, b4;
+        uint64_t c1, c2, c3, c4;
+        uint64_t d1, d2, d3, d4;
+
+        uint64_t out1;
+        uint64_t out2;
+        uint64_t out3;
+        uint64_t out4;
+        uint64_t out5;
+
+        uint64_t chorba1 = input[i / sizeof(uint64_t)];
+        uint64_t chorba2 = input[i / sizeof(uint64_t) + 1];
+        uint64_t chorba3 = input[i / sizeof(uint64_t) + 2];
+        uint64_t chorba4 = input[i / sizeof(uint64_t) + 3];
+        uint64_t chorba5 = input[i / sizeof(uint64_t) + 4];
+        uint64_t chorba6 = input[i / sizeof(uint64_t) + 5];
+        uint64_t chorba7 = input[i / sizeof(uint64_t) + 6];
+        uint64_t chorba8 = input[i / sizeof(uint64_t) + 7];
+#if BYTE_ORDER == BIG_ENDIAN
+        chorba1 = ZSWAP64(chorba1);
+        chorba2 = ZSWAP64(chorba2);
+        chorba3 = ZSWAP64(chorba3);
+        chorba4 = ZSWAP64(chorba4);
+        chorba5 = ZSWAP64(chorba5);
+        chorba6 = ZSWAP64(chorba6);
+        chorba7 = ZSWAP64(chorba7);
+        chorba8 = ZSWAP64(chorba8);
+#endif
+        chorba1 ^= next1;
+        chorba2 ^= next2;
+        chorba3 ^= next3;
+        chorba4 ^= next4;
+        chorba5 ^= next5;
+        chorba7 ^= chorba1;
+        chorba8 ^= chorba2;
+        i += 8 * 8;
+
+        /* 0-3 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= chorba3;
+        in2 ^= chorba4 ^ chorba1;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= a1 ^ chorba5 ^ chorba2 ^ chorba1;
+        in4 ^= a2 ^ b1 ^ chorba6 ^ chorba3 ^ chorba2;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 4-7 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba7 ^ chorba4 ^ chorba3;
+        in2 ^= next2 ^ chorba8 ^ chorba5 ^ chorba4;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba6 ^ chorba5;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba7 ^ chorba6;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 8-11 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba8 ^ chorba7 ^ chorba1;
+        in2 ^= next2 ^ chorba8 ^ chorba2;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba3;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba4;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 12-15 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba5 ^ chorba1;
+        in2 ^= next2 ^ chorba6 ^ chorba2 ^ chorba1;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba7 ^ chorba3 ^ chorba2 ^ chorba1;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba8 ^ chorba4 ^ chorba3 ^ chorba2;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 16-19 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba5 ^ chorba4 ^ chorba3 ^ chorba1;
+        in2 ^= next2 ^ chorba6 ^ chorba5 ^ chorba4 ^ chorba1 ^ chorba2;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba7 ^ chorba6 ^ chorba5 ^ chorba2 ^ chorba3;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba8 ^ chorba7 ^ chorba6 ^ chorba3 ^ chorba4 ^ chorba1;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 20-23 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba8 ^ chorba7 ^ chorba4 ^ chorba5 ^ chorba2 ^ chorba1;
+        in2 ^= next2 ^ chorba8 ^ chorba5 ^ chorba6 ^ chorba3 ^ chorba2;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba7 ^ chorba6 ^ chorba4 ^ chorba3 ^ chorba1;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba8 ^ chorba7 ^ chorba5 ^ chorba4 ^ chorba2 ^ chorba1;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 24-27 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba8 ^ chorba6 ^ chorba5 ^ chorba3 ^ chorba2 ^ chorba1;
+        in2 ^= next2 ^ chorba7 ^ chorba6 ^ chorba4 ^ chorba3 ^ chorba2;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba8 ^ chorba7 ^ chorba5 ^ chorba4 ^ chorba3;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba8 ^ chorba6 ^ chorba5 ^ chorba4;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+
+        i += 32;
+
+        /* 28-31 */
+        in1 = input[i / sizeof(uint64_t)];
+        in2 = input[i / sizeof(uint64_t) + 1];
+#if BYTE_ORDER == BIG_ENDIAN
+        in1 = ZSWAP64(in1);
+        in2 = ZSWAP64(in2);
+#endif
+        in1 ^= next1 ^ chorba7 ^ chorba6 ^ chorba5;
+        in2 ^= next2 ^ chorba8 ^ chorba7 ^ chorba6;
+
+        a1 = (in1 << 17) ^ (in1 << 55);
+        a2 = (in1 >> 47) ^ (in1 >> 9) ^ (in1 << 19);
+        a3 = (in1 >> 45) ^ (in1 << 44);
+        a4 = (in1 >> 20);
+        
+        b1 = (in2 << 17) ^ (in2 << 55);
+        b2 = (in2 >> 47) ^ (in2 >> 9) ^ (in2 << 19);
+        b3 = (in2 >> 45) ^ (in2 << 44);
+        b4 = (in2 >> 20);
+
+        in3 = input[i / sizeof(uint64_t) + 2];
+        in4 = input[i / sizeof(uint64_t) + 3];
+#if BYTE_ORDER == BIG_ENDIAN
+        in3 = ZSWAP64(in3);
+        in4 = ZSWAP64(in4);
+#endif
+        in3 ^= next3 ^ a1 ^ chorba8 ^ chorba7;
+        in4 ^= next4 ^ a2 ^ b1 ^ chorba8;
+
+        c1 = (in3 << 17) ^ (in3 << 55);
+        c2 = (in3 >> 47) ^ (in3 >> 9) ^ (in3 << 19);
+        c3 = (in3 >> 45) ^ (in3 << 44);
+        c4 = (in3 >> 20);
+        
+        d1 = (in4 << 17) ^ (in4 << 55);
+        d2 = (in4 >> 47) ^ (in4 >> 9) ^ (in4 << 19);
+        d3 = (in4 >> 45) ^ (in4 << 44);
+        d4 = (in4 >> 20);
+
+        out1 = a3 ^ b2 ^ c1;
+        out2 = a4 ^ b3 ^ c2 ^ d1;
+        out3 = b4 ^ c3 ^ d2;
+        out4 = c4 ^ d3;
+        out5 = d4;
+
+        next1 = next5 ^ out1;
+        next2 = out2;
+        next3 = out3;
+        next4 = out4;
+        next5 = out5;
+    }
+
+    for(; (i + 40 + 32) < len; i += 32) {
         uint64_t in1;
         uint64_t in2;
         uint64_t in3;
@@ -747,7 +1215,6 @@ uint32_t chorba_small_nondestructive (uint32_t crc, const uint64_t* buf, size_t 
         next3 = out3;
         next4 = out4;
         next5 = out5;
-
     }
 
 #if BYTE_ORDER == BIG_ENDIAN
@@ -785,8 +1252,10 @@ Z_INTERNAL uint32_t PREFIX(crc32_braid)(uint32_t crc, const uint8_t *buf, size_t
         aligned_len = len - algn_diff;
         if(aligned_len > (sizeof(z_word_t) * 64) * 1024)
             c = chorba_118960_nondestructive(c, (z_word_t*) aligned_buf, aligned_len);
+#if W == 8
         else if (aligned_len > 72)
             c = chorba_small_nondestructive(c, aligned_buf, aligned_len);
+#endif
         else {
             c = crc32_braid_base(c, (uint8_t*) aligned_buf, aligned_len);
         }
